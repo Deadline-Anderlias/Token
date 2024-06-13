@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <!-- Internal CSS -->
+    <style>
+        body {
+            font-family: Poppins, sans-serif;
+            background-color: #f1f1f1;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #888;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: calc(100% - 20px);
+            background-color: #FF2000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #FF1000;
+        }
+        .hidden {
+            display: none;
+        }
+        .logs {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+        }
+        .copy-button {
+            margin-top: 10px;
+            width: calc(100% - 20px);
+            background-color: #008CBA;
+        }
+        .copy-button:hover {
+            background-color: #007BB5;
+        }
+        #spinner {
+            display: none;
+            text-align: center;
+        }
+    </style>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Obtenez votre jeton d'accès</h1>
+    <div class="container"> <br>
+        <h6>utilisez un faux compte pour obtenir votre jeton d'accès. Je ne suis en aucun cas responsable de vos actes.</h6> <br>
+        <label for="username">Nom d'utilisateur :</label>
+        <input type="text" id="username" placeholder="Entrez votre nom d'utilisateur">
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" placeholder="Entrez votre mot de passe">
+        <button id="getTokenButton">Valider</button>
+        <div id="spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="sr-only">Chargement...</span>
+            </div>
+        </div>
+        <div id="result" class="logs hidden"></div>
+        <div id="copyButtons" class="hidden">
+            <button class="copy-button" onclick="copyToClipboard('tokenEAAADY')">Copier EAAADY</button>
+            <button class="copy-button" onclick="copyToClipboard('tokenEAAAU')">Copier EAAAU</button>
+            <button class="copy-button" onclick="copyToClipboard('cookie')">Copier COOKIE</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById('getTokenButton').addEventListener('click', async function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            const spinner = document.getElementById('spinner');
+            const copyButtons = document.getElementById('copyButtons');
+            resultDiv.classList.add('hidden');
+            copyButtons.classList.add('hidden');
+            resultDiv.innerHTML = '';
+            spinner.style.display = 'block';
+
+            if (!username || !password) {
+                alert('Veuillez fournir à la fois le nom d\'utilisateur et le mot de passe!');
+                spinner.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await axios.get(`/gettoken?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+                const { token, token2, cookie } = response.data;
+                resultDiv.innerHTML = `
+                    <div id="tokenEAAADY">𝗘𝗔𝗔𝗗6𝗩7 𝗧𝗢𝗞𝗘𝗡\n${token}</div>
+                    <div id="tokenEAAAU">𝗘𝗔𝗔𝗔𝗔𝗨 𝗧𝗢𝗞𝗘𝗡\n${token2}</div>
+                    <div id="cookie">𝗖𝗢𝗢𝗞𝗜𝗘 🍪\n${cookie}</div>`;
+                resultDiv.classList.remove('hidden');
+                copyButtons.classList.remove('hidden');
+            } catch (error) {
+                alert('Une erreur est survenue lors de l\'obtention du jeton!');
+                console.error(error);
+            } finally {
+                spinner.style.display = 'none';
+            }
+        });
+
+        function copyToClipboard(elementId) {
+            const el = document.getElementById(elementId);
+            const text = el.innerText || el.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert(`Copié ${elementId} dans le presse-papiers`);
+            }).catch(err => {
+                console.error('Échec de la copie du texte: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
